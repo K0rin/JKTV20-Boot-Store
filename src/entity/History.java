@@ -16,10 +16,19 @@ public class History implements Serializable{
     private Boot boot;
     private Client client;
     private Date sellingDate;
-    private int capital = 0;
-
+    private int capital;
+    private int status;
+    
     public History() {
     }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }       
 
     public Boot getBoot() {
         return boot;

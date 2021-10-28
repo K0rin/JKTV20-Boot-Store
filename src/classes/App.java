@@ -46,6 +46,7 @@ public class App {
             System.out.println("4: Список кдиентов");
             System.out.println("5: Продажа ботинка");
             System.out.println("6: Список проданных ботинок и история нокапления");
+            System.out.println("7: добавить денег клиенту");
             int task = scanner.nextInt();
             scanner.nextLine();
             switch (task){
@@ -54,7 +55,7 @@ public class App {
                     System.out.println("Программа закончена");
                     break;
                 case 1:
-                    System.out.println("Добавление книги");
+                    System.out.println("Добавление продукта");
                             boots.add(addBoot());
                             file_keeper.saveBoots(boots);
                             break; 
@@ -75,10 +76,23 @@ public class App {
                             histories.add(addHistory());
                             if (histories != null){ 
                                 file_keeper.saveHistories(histories);
+                                file_keeper.saveClients(clients);
+//                                for (int i = 0; i < histories.size(); i++){
+//                                    if(i == histories.size()){
+//                                        int clientnumber = histories.get(i).getIdClient();
+//                                        clients.get(clientnumber).setMoney(histories.get(i).getClient().getMoney);
+//                    
+//                                    }
+//                                }
                             }
+                            
                             break;
                 case 6:
                     printSoldBoot();
+                    break;
+                case 7:
+                    addMoney();
+                    file_keeper.saveClients(clients);
                     break;
         } 
     }while("y".equals(repeat));
@@ -86,6 +100,25 @@ public class App {
     
 }
 
+    private History addMoney(){
+        History client = new History();
+        
+        System.out.println("Список клиентов покупателей");
+        for (int i = 0; i < clients.size(); i++){
+            if(clients.get(i) != null){
+                System.out.printf("%d. %s%n", i+1,clients.get(i).toString());
+            }
+        }
+        
+        System.out.print("Введите номер покупателя: ");        
+        int clientNumber = scanner.nextInt(); scanner.nextLine();
+        System.out.print("Сколько денег занести на счет?: ");
+        client.setClient(clients.get(clientNumber-1));
+        client.getClient().setMoney(clients.get(clientNumber-1).getMoney()+scanner.nextInt());
+        System.out.println("ok");
+        return client;
+    }
+    
     private Boot addBoot() {
         Boot boot = new Boot();
         
@@ -99,9 +132,8 @@ public class App {
         scanner.nextLine();
         System.out.print("Введите день изготовления: ");
         boot.setDay_done(scanner.nextInt());
-        scanner.nextLine();
-        System.out.print("Сколько производителей у данного продукта: ");
-        
+        System.out.print("Введите цену: ");
+        boot.setPrice(scanner.nextInt());
         scanner.nextLine();
         List<Manufactor> manufactors = new ArrayList<>();
         
@@ -153,7 +185,8 @@ public class App {
                         
                     }
     }
-
+    
+    
     private History addHistory() {
          History history = new History();
         /**
@@ -181,30 +214,53 @@ public class App {
                 System.out.printf("%d. %s%n", i+1,clients.get(i).toString());
             }
         }
+        int historyNumber = 0;
+        for (int i = 0; i < histories.size(); i++){           
+                historyNumber = historyNumber + 1;
+        }
+        System.out.println(historyNumber);
         System.out.print("Введите номер покупателя: ");        
         int clientNumber = scanner.nextInt(); scanner.nextLine();
         if (clients.get(clientNumber-1).getMoney() > boots.get(bootNumber-1).getPrice()){
+           System.out.println("Заказ принят");
            history.setBoot(boots.get(bootNumber-1));
            history.setClient(clients.get(clientNumber-1));
            Calendar c = new GregorianCalendar();
            history.setSellingDate(c.getTime());
-           history.setCapital(history.getCapital()+history.getBoot().getPrice());
+           if(historyNumber == 0){
+               history.setCapital(history.getBoot().getPrice());
+           }else{
+               history.setCapital(histories.get(historyNumber-1).getCapital()+history.getBoot().getPrice());
+           }
            history.getClient().setMoney(clients.get(clientNumber-1).getMoney()-history.getBoot().getPrice());
+           history.setStatus(1);
+        }else{
+           System.out.println("Заказ отменен. У пользователя не хватает денег.");
+           history.setBoot(boots.get(bootNumber-1));
+           history.setClient(clients.get(clientNumber-1));
+           Calendar c = new GregorianCalendar();
+           history.setSellingDate(c.getTime());
+           history.setCapital(histories.get(historyNumber-1).getCapital());
+           history.getClient().setMoney(clients.get(clientNumber-1).getMoney());
+           history.setStatus(2); 
+            
         }
         
         
         return history;
     }
-
+    
+    
     private void printSoldBoot() {
         System.out.println("Список проданных товаров");
             for (int i = 0; i < histories.size(); i++){
-                if(histories.get(i) != null){
-                    System.out.printf("%d. Товар: %s купил %s %s%n",
+                if(histories.get(i) != null && histories.get(i).getStatus() == 1){
+                    System.out.printf("%d. Товар: %s купил %s %s Сумма на счету магазина %d %n",
                             i+1,
                             histories.get(i).getBoot().getName(),
                             histories.get(i).getClient().getFirstname(),
-                            histories.get(i).getClient().getLastname()
+                            histories.get(i).getClient().getLastname(),
+                            histories.get(i).getCapital()
                     );
                 }
             }
