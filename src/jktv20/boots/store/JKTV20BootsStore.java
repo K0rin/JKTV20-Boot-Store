@@ -17,6 +17,11 @@ public class JKTV20BootsStore {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        if(args.length==0){
+            App.isBase = true;
+        }else{
+            App.isBase = false;
+        }
         App app;
         app = new App();
         app.run();

@@ -8,14 +8,24 @@ package entity;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 /**
  *
  * @author pupil
  */
+@Entity
 public class Boot implements Serializable{
-
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
+    @OneToOne(cascade = CascadeType.ALL)
     private List<Manufactor> manufactor;
     private int price;
     private int year_done;
@@ -25,6 +35,14 @@ public class Boot implements Serializable{
     
     public Boot() {
     
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -82,6 +100,51 @@ public class Boot implements Serializable{
         return "Boot{" + "name=" + name + ", manufactor=" + Arrays.toString(manufactor.toArray()) + ", price=" + price + ", creationdate= " + day_done
                 + "." + month_done + "."
                 + year_done + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 83 * hash + Objects.hashCode(this.name);
+        hash = 83 * hash + Objects.hashCode(this.manufactor);
+        hash = 83 * hash + this.price;
+        hash = 83 * hash + this.year_done;
+        hash = 83 * hash + this.month_done;
+        hash = 83 * hash + this.day_done;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Boot other = (Boot) obj;
+        if (this.price != other.price) {
+            return false;
+        }
+        if (this.year_done != other.year_done) {
+            return false;
+        }
+        if (this.month_done != other.month_done) {
+            return false;
+        }
+        if (this.day_done != other.day_done) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.manufactor, other.manufactor)) {
+            return false;
+        }
+        return true;
     }
     
     

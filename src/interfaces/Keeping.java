@@ -8,6 +8,7 @@ package interfaces;
 import entity.Boot;
 import entity.History;
 import entity.Client;
+import entity.Manufactor;
 import java.util.List;
 
 /**
@@ -22,4 +23,6 @@ public interface Keeping {
     public List<Client> loadClients();
     public void saveHistories(List<History> histories);
     public List<History> loadHistories();
+    public void saveManufactors(List<Manufactor> manufactors);
+    public List<Manufactor> loadManufactors();
 }

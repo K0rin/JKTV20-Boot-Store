@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package File_Keeper;
+package keeper;
 
 import entity.Boot;
 import entity.History;
 import entity.Client;
+import entity.Manufactor;
 import interfaces.Keeping;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -134,6 +135,16 @@ public class File_Keeper implements Keeping{
         }
         
         return loadHistories;
+    }
+
+    @Override
+    public void saveManufactors(List<Manufactor> manufactors) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Manufactor> loadManufactors() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

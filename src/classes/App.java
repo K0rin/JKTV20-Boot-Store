@@ -5,34 +5,45 @@
  */
 package classes;
 
-import File_Keeper.File_Keeper;
+import jktv20.boots.store.JKTV20BootsStore;
+import keeper.File_Keeper;
 import entity.Boot;
 import entity.Client;
 import entity.History;
 import entity.Manufactor;
+import interfaces.Keeping;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import keeper.BaseKeeper;
 
 /**
  *
  * @author pupil
  */
 public class App {
-
-    Scanner scanner = new Scanner(System.in);
-    List<Boot> boots = new ArrayList<>();
-    List<Client> clients = new ArrayList<>();
-    List<History> histories = new ArrayList<>();
-    File_Keeper file_keeper = new File_Keeper();
+    public static boolean isBase;
+    private Scanner scanner = new Scanner(System.in);
+    private List<Boot> boots = new ArrayList<>();
+    private List<Client> clients = new ArrayList<>();
+    private List<History> histories = new ArrayList<>();
+    private List<Manufactor> manufactors = new ArrayList<>();
+    private Keeping keeper;
     
     public App() {
-        File_Keeper file_keeper = new File_Keeper();
-        boots = file_keeper.loadBoots();
-        clients = file_keeper.loadClients();
-        histories = file_keeper.loadHistories();
+        if(App.isBase){
+            keeper = new BaseKeeper();
+        }else{
+            keeper = new File_Keeper();
+        }
+        boots = keeper.loadBoots();
+        clients = keeper.loadClients();
+        histories = keeper.loadHistories();
+        manufactors = keeper.loadManufactors();
     }
     
     public void run() {
@@ -47,6 +58,9 @@ public class App {
             System.out.println("5: Продажа ботинка");
             System.out.println("6: Список проданных ботинок и история нокапления");
             System.out.println("7: добавить денег клиенту");
+            System.out.println("8: добавить производителя");
+            System.out.println("9: список производителей");
+            System.out.println("10: изменить имя производителя");
             int task = scanner.nextInt();
             scanner.nextLine();
             switch (task){
@@ -57,26 +71,26 @@ public class App {
                 case 1:
                     System.out.println("Добавление продукта");
                             boots.add(addBoot());
-                            file_keeper.saveBoots(boots);
+                            keeper.saveBoots(boots);
                             break; 
                 case 2:
                     printAllBoots();
                     break;
                 case 3:
-                    System.out.println("Добавление читателя");
+                    System.out.println("Добавление клиента");
                             clients.add(addClient());
-                            file_keeper.saveClients(clients);
+                            keeper.saveClients(clients);
                             break;
                 case 4:
-                    System.out.println("Список читателей");
+                    System.out.println("Список клиентов");
                     printAllClients();
                     break;
                 case 5:
                     System.out.println("Продажа ботинка");
                             histories.add(addHistory());
                             if (histories != null){ 
-                                file_keeper.saveHistories(histories);
-                                file_keeper.saveClients(clients);
+                                keeper.saveHistories(histories);
+                                keeper.saveClients(clients);
 //                                for (int i = 0; i < histories.size(); i++){
 //                                    if(i == histories.size()){
 //                                        int clientnumber = histories.get(i).getIdClient();
@@ -92,7 +106,16 @@ public class App {
                     break;
                 case 7:
                     addMoney();
-                    file_keeper.saveClients(clients);
+                    keeper.saveClients(clients);
+                    break;
+                case 8:
+                    addManufactor();
+                    break;
+                case 9:
+                    printListManufactors();
+                    break;
+                case 10:
+                    changeManufactorName();
                     break;
         } 
     }while("y".equals(repeat));
@@ -112,7 +135,7 @@ public class App {
         
         System.out.print("Введите номер покупателя: ");        
         int clientNumber = scanner.nextInt(); scanner.nextLine();
-        System.out.print("Сколько денег занести на счет?: ");
+        System.out.print("Сколько денег занести на счет? ");
         client.setClient(clients.get(clientNumber-1));
         client.getClient().setMoney(clients.get(clientNumber-1).getMoney()+scanner.nextInt());
         System.out.println("ok");
@@ -154,7 +177,7 @@ public class App {
     }
     
     private void printAllBoots(){
-        System.out.println("Список книг: ");
+        System.out.println("Список ботинков: ");
             for (int i = 0; i < boots.size(); i++) {
                 if(boots.get(i) != null){
                     System.out.println(boots.get(i));
@@ -264,6 +287,53 @@ public class App {
                     );
                 }
             }
+    }
+
+    private void addManufactor() {
+        System.out.println("Добавление производителя");
+        Manufactor manufactor = new Manufactor();
+        System.out.print("Название производителя: ");
+        manufactor.setName(scanner.nextLine());
+        System.out.print("Страна производителя: ");
+        manufactor.setCountry(scanner.nextLine());
+        System.out.print("Город производителя: ");
+        manufactor.setCity(scanner.nextLine());
+        manufactors.add(manufactor);
+        keeper.saveManufactors(manufactors);
+    }
+    
+    private Set<Integer> printListManufactors(){
+       Set<Integer> setNumbersManufactors = new HashSet<>();
+       System.out.println("список производителей: ");
+        for (int i = 0; i < manufactors.size(); i++) {
+            if(manufactors.get(i) != null){
+                System.out.printf("%d. %s%n", i+1, manufactors.get(i).toString());
+                setNumbersManufactors.add(i+1);
+            }    
+        }
+        return setNumbersManufactors;
+    }
+
+    private void changeManufactorName() {
+        if(quit()) return;
+        History manufactor = new History();
+        Set<Integer> setNumbersManufactors = printListManufactors();
+        if(setNumbersManufactors.isEmpty()){
+            return;
+        }
+        System.out.print("Введите номер производителя из списка: ");
+        int manufactorNumber = insertNumber(setNumbersManufactors);
+    }
+    
+    private boolean quit(){
+        System.out.println("Чтобы закончить операцию нажмите \"q\"," + "для продолжения введите любой символ ");
+        String quit = scanner.nextLine();
+        if("q".equals(quit)) return true;
+        return false;
+    }
+
+    private int insertNumber(Set<Integer> setNumbers) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
